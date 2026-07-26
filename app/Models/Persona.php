@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 #[Fillable([
     'nombres', 'apellidos', 'telefono', 'direccion', 'correo', 'genero',
     'fecha_nacimiento', 'fecha_primera_visita', 'peticion_oracion', 'estado',
+    'acudiente', 'telefono_acudiente', 'parentesco',
     'red_id', 'lider_id', 'user_id',
 ])]
 class Persona extends Model
@@ -30,6 +31,59 @@ class Persona extends Model
         return Attribute::get(fn () => "{$this->nombres} {$this->apellidos}");
     }
 
+    /**
+     * Líder principal = cabeza de una red (pertenece a una red y no reporta a nadie).
+     */
+    protected function esLiderPrincipal(): Attribute
+    {
+        return Attribute::get(fn () => $this->red_id !== null && $this->lider_id === null);
+    }
+
+    /**
+     * Línea de liderazgo: 0 = líder principal, 1 = primera línea (reporta
+     * directo al principal y a su vez lidera gente), 2 = segunda línea, etc.
+     * Null si la persona no es líder de nadie (no lleva marca de línea).
+     */
+    protected function lineaLiderazgo(): Attribute
+    {
+        return Attribute::get(function () {
+            if ($this->red_id === null) {
+                return null;
+            }
+
+            if ($this->lider_id === null) {
+                return 0;
+            }
+
+            if (! $this->discipulos()->exists()) {
+                return null;
+            }
+
+            $profundidad = 0;
+            $actual = $this;
+
+            while ($actual !== null && $actual->lider_id !== null) {
+                $profundidad++;
+                $actual = $actual->lider;
+            }
+
+            return $profundidad;
+        });
+    }
+
+    /**
+     * Etiqueta legible de la línea de liderazgo (solo para líderes que no son
+     * el principal — ese ya se distingue con su propia marca de estrella).
+     */
+    protected function etiquetaLinea(): Attribute
+    {
+        return Attribute::get(function () {
+            $linea = $this->linea_liderazgo;
+
+            return $linea !== null && $linea > 0 ? "{$linea}ª línea" : null;
+        });
+    }
+
     public function red(): BelongsTo
     {
         return $this->belongsTo(Red::class);
@@ -43,6 +97,16 @@ class Persona extends Model
     public function discipulos(): HasMany
     {
         return $this->hasMany(Persona::class, 'lider_id');
+    }
+
+    public function movimientosContables(): HasMany
+    {
+        return $this->hasMany(MovimientoContable::class);
+    }
+
+    public function donacionesActivos(): HasMany
+    {
+        return $this->hasMany(DonacionActivo::class);
     }
 
     public function user(): BelongsTo

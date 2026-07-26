@@ -25,7 +25,10 @@ class PermissionSeeder extends Seeder
             'delete', 'delete_any', 'force_delete', 'force_delete_any',
         ];
 
-        $resources = ['persona', 'punto::conexion', 'proceso'];
+        $resources = [
+            'persona', 'punto::conexion', 'proceso', 'red', 'user',
+            'categoria::contable', 'movimiento::contable', 'donacion::activo',
+        ];
 
         foreach ($resources as $resource) {
             foreach ($prefijosResource as $prefijo) {

@@ -29,6 +29,7 @@ class ProcesosRelationManager extends RelationManager
                     ->options([
                         'en_curso' => 'En curso',
                         'terminado' => 'Terminado',
+                        'incompleto' => 'Incompleto',
                         'retirado' => 'Retirado',
                     ])
                     ->default('en_curso')
@@ -52,6 +53,7 @@ class ProcesosRelationManager extends RelationManager
                     ->color(fn (string $state) => match ($state) {
                         'en_curso' => 'warning',
                         'terminado' => 'success',
+                        'incompleto' => 'gray',
                         'retirado' => 'danger',
                     }),
                 Tables\Columns\TextColumn::make('asistencia')

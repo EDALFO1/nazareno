@@ -76,6 +76,29 @@ class PersonaResource extends Resource
                             ->label('Petición de oración')
                             ->columnSpanFull(),
                     ]),
+                Forms\Components\Section::make('Acudiente')
+                    ->description('Si la persona es menor de edad.')
+                    ->columns(3)
+                    ->schema([
+                        Forms\Components\TextInput::make('acudiente')
+                            ->label('Nombre del acudiente')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('telefono_acudiente')
+                            ->label('Teléfono del acudiente')
+                            ->tel()
+                            ->maxLength(255),
+                        Forms\Components\Select::make('parentesco')
+                            ->options([
+                                'padre' => 'Padre',
+                                'madre' => 'Madre',
+                                'abuelo_a' => 'Abuelo/a',
+                                'tio_a' => 'Tío/a',
+                                'hermano_a' => 'Hermano/a',
+                                'tutor_legal' => 'Tutor legal',
+                                'otro' => 'Otro',
+                            ])
+                            ->native(false),
+                    ]),
                 Forms\Components\Section::make('Red y liderazgo')
                     ->columns(2)
                     ->schema([
@@ -101,11 +124,13 @@ class PersonaResource extends Resource
                             )
                             ->getOptionLabelFromRecordUsing(fn (Persona $record) => $record->nombre_completo)
                             ->searchable(['nombres', 'apellidos'])
+                            ->preload()
                             ->native(false),
                         Forms\Components\Select::make('user_id')
                             ->label('Usuario del sistema')
                             ->relationship('user', 'name')
                             ->helperText('Solo si esta persona debe iniciar sesión (p. ej. un líder principal).')
+                            ->visible(fn () => ! Auth::user()->hasRole('lider_red'))
                             ->native(false),
                     ]),
             ]);
@@ -118,6 +143,9 @@ class PersonaResource extends Resource
                 Tables\Columns\TextColumn::make('nombres')
                     ->label('Nombre')
                     ->formatStateUsing(fn (Persona $record) => $record->nombre_completo)
+                    ->icon(fn (Persona $record) => $record->es_lider_principal ? 'heroicon-s-star' : null)
+                    ->iconColor('warning')
+                    ->tooltip(fn (Persona $record) => $record->es_lider_principal ? 'Líder principal' : null)
                     ->searchable(['nombres', 'apellidos']),
                 Tables\Columns\TextColumn::make('telefono')
                     ->searchable(),
@@ -131,6 +159,11 @@ class PersonaResource extends Resource
                     ->label('Líder')
                     ->formatStateUsing(fn (Persona $record) => $record->lider?->nombre_completo)
                     ->sortable(),
+                Tables\Columns\TextColumn::make('linea_liderazgo')
+                    ->label('Línea')
+                    ->badge()
+                    ->color('gray')
+                    ->formatStateUsing(fn (Persona $record) => $record->etiqueta_linea),
                 Tables\Columns\TextColumn::make('estado')
                     ->badge()
                     ->color(fn (string $state) => match ($state) {
@@ -155,8 +188,17 @@ class PersonaResource extends Resource
                         'en_red' => 'En red',
                         'inactivo' => 'Inactivo',
                     ]),
+                Tables\Filters\Filter::make('lideres_principales')
+                    ->label('Solo líderes principales')
+                    ->query(fn (Builder $query) => $query->whereNotNull('red_id')->whereNull('lider_id')),
             ])
             ->actions([
+                Tables\Actions\Action::make('ver_rama')
+                    ->label('Ver rama')
+                    ->icon('heroicon-o-share')
+                    ->color('gray')
+                    ->url(fn (Persona $record) => route('filament.admin.pages.estructura-red', ['lider' => $record->id]))
+                    ->visible(fn (Persona $record) => $record->discipulos()->exists()),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

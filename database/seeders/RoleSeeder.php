@@ -26,6 +26,7 @@ class RoleSeeder extends Seeder
         $adminGeneral->syncPermissions(
             Permission::where('guard_name', 'web')
                 ->where('name', 'not like', '%role%')
+                ->where('name', 'not like', '%user%')
                 ->get()
         );
 

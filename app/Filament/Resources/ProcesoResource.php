@@ -6,6 +6,7 @@ use App\Filament\Resources\ProcesoResource\Pages;
 use App\Filament\Resources\ProcesoResource\RelationManagers\ParticipantesRelationManager;
 use App\Filament\Resources\ProcesoResource\RelationManagers\SesionesRelationManager;
 use App\Models\Proceso;
+use App\Models\TipoProceso;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -32,6 +33,7 @@ class ProcesoResource extends Resource
                     ->label('Tipo de proceso')
                     ->relationship('tipoProceso', 'nombre', fn ($query) => $query->orderBy('orden'))
                     ->required()
+                    ->live()
                     ->native(false),
                 Forms\Components\TextInput::make('nombre')
                     ->label('Nombre de la edición')
@@ -49,7 +51,50 @@ class ProcesoResource extends Resource
                     ->default('planificado')
                     ->required()
                     ->native(false),
+                Forms\Components\Select::make('cargar_desde_proceso_id')
+                    ->label('Cargar participantes que terminaron')
+                    ->helperText('Trae automáticamente, como participantes de esta edición, a quienes terminaron la edición que elijas del proceso anterior en la secuencia.')
+                    ->options(fn (Forms\Get $get) => static::opcionesProcesoAnterior($get('tipo_proceso_id')))
+                    ->visible(fn (Forms\Get $get, string $operation) => $operation === 'create'
+                        && static::tipoProcesoAnterior($get('tipo_proceso_id')) !== null)
+                    ->native(false),
             ]);
+    }
+
+    protected static function tipoProcesoAnterior(?int $tipoProcesoId): ?TipoProceso
+    {
+        if (! $tipoProcesoId) {
+            return null;
+        }
+
+        $tipoActual = TipoProceso::find($tipoProcesoId);
+
+        if (! $tipoActual || $tipoActual->orden === null) {
+            return null;
+        }
+
+        return TipoProceso::where('orden', $tipoActual->orden - 1)->first();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected static function opcionesProcesoAnterior(?int $tipoProcesoId): array
+    {
+        $tipoAnterior = static::tipoProcesoAnterior($tipoProcesoId);
+
+        if (! $tipoAnterior) {
+            return [];
+        }
+
+        return Proceso::query()
+            ->where('tipo_proceso_id', $tipoAnterior->id)
+            ->orderByDesc('fecha_inicio')
+            ->get()
+            ->mapWithKeys(fn (Proceso $proceso) => [
+                $proceso->id => "{$proceso->nombre} ({$proceso->participantes()->where('estado_participacion', 'terminado')->count()} terminaron)",
+            ])
+            ->all();
     }
 
     public static function table(Table $table): Table

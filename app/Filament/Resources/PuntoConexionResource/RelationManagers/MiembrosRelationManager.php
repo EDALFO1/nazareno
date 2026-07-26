@@ -47,7 +47,9 @@ class MiembrosRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\AttachAction::make()
                     ->recordSelect(function (Forms\Components\Select $select) {
-                        return $select->getOptionLabelFromRecordUsing(fn (Persona $record) => $record->nombre_completo);
+                        return $select
+                            ->getOptionLabelFromRecordUsing(fn (Persona $record) => $record->nombre_completo)
+                            ->preload();
                     })
                     ->recordSelectOptionsQuery(function (Builder $query) {
                         $alcanceIds = Auth::user()->alcancePersonaIds();

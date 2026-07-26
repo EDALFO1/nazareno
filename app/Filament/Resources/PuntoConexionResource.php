@@ -60,6 +60,7 @@ class PuntoConexionResource extends Resource
             )
             ->getOptionLabelFromRecordUsing(fn (Persona $record) => $record->nombre_completo)
             ->searchable(['nombres', 'apellidos'])
+            ->preload()
             ->native(false);
     }
 
@@ -116,7 +117,9 @@ class PuntoConexionResource extends Resource
                     ->badge(),
                 Tables\Columns\TextColumn::make('lider.nombres')
                     ->label('Líder')
-                    ->formatStateUsing(fn (PuntoConexion $record) => $record->lider?->nombre_completo),
+                    ->formatStateUsing(fn (PuntoConexion $record) => $record->lider?->nombre_completo)
+                    ->icon(fn (PuntoConexion $record) => $record->lider?->es_lider_principal ? 'heroicon-s-star' : null)
+                    ->iconColor('warning'),
                 Tables\Columns\TextColumn::make('anfitrion.nombres')
                     ->label('Anfitrión')
                     ->formatStateUsing(fn (PuntoConexion $record) => $record->anfitrion?->nombre_completo),

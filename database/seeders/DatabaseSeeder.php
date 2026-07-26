@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(PermissionSeeder::class);
         $this->call(RoleSeeder::class);
+        $this->call(CategoriaContableSeeder::class);
 
         Red::firstOrCreate(['nombre' => 'Hombres']);
         Red::firstOrCreate(['nombre' => 'Mujeres']);

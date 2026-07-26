@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ProcesoResource\RelationManagers;
 use App\Models\Persona;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -38,6 +39,7 @@ class ParticipantesRelationManager extends RelationManager
                     )
                     ->getOptionLabelFromRecordUsing(fn (Persona $record) => $record->nombre_completo)
                     ->searchable(['nombres', 'apellidos'])
+                    ->preload()
                     ->required()
                     ->native(false),
                 Forms\Components\Select::make('red_id')
@@ -49,6 +51,7 @@ class ParticipantesRelationManager extends RelationManager
                     ->options([
                         'en_curso' => 'En curso',
                         'terminado' => 'Terminado',
+                        'incompleto' => 'Incompleto',
                         'retirado' => 'Retirado',
                     ])
                     ->default('en_curso')
@@ -81,6 +84,7 @@ class ParticipantesRelationManager extends RelationManager
                     ->color(fn (string $state) => match ($state) {
                         'en_curso' => 'warning',
                         'terminado' => 'success',
+                        'incompleto' => 'gray',
                         'retirado' => 'danger',
                     }),
                 Tables\Columns\TextColumn::make('sesionRetiro.numero_sesion')
@@ -91,11 +95,56 @@ class ParticipantesRelationManager extends RelationManager
                     ->options([
                         'en_curso' => 'En curso',
                         'terminado' => 'Terminado',
+                        'incompleto' => 'Incompleto',
                         'retirado' => 'Retirado',
                     ]),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make(),
+                Tables\Actions\Action::make('marcar_terminacion')
+                    ->label('Marcar quiénes terminaron')
+                    ->icon('heroicon-o-check-badge')
+                    ->form(function () {
+                        $terminados = $this->getOwnerRecord()->participantes()
+                            ->where('estado_participacion', 'terminado')
+                            ->pluck('persona_id')
+                            ->all();
+
+                        return [
+                            Forms\Components\CheckboxList::make('terminaron')
+                                ->label('Personas que terminaron el proceso')
+                                ->helperText('Quien quede sin marcar aquí quedará como "Incompleto" — podrá continuar el proceso más adelante. Los que ya están "Retirado" no se tocan.')
+                                ->options(
+                                    $this->getOwnerRecord()->participantes()
+                                        ->where('estado_participacion', '!=', 'retirado')
+                                        ->with('persona')
+                                        ->get()
+                                        ->mapWithKeys(fn ($p) => [$p->persona_id => $p->persona?->nombre_completo])
+                                )
+                                ->default($terminados)
+                                ->columns(2),
+                        ];
+                    })
+                    ->action(function (array $data) {
+                        $seleccionados = $data['terminaron'] ?? [];
+
+                        foreach ($this->getOwnerRecord()->participantes as $participante) {
+                            if ($participante->estado_participacion === 'retirado') {
+                                continue;
+                            }
+
+                            $participante->update([
+                                'estado_participacion' => in_array($participante->persona_id, $seleccionados)
+                                    ? 'terminado'
+                                    : 'incompleto',
+                            ]);
+                        }
+
+                        Notification::make()
+                            ->title('Terminación actualizada')
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

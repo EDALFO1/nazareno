@@ -49,6 +49,13 @@ class ProcesosStatsWidget extends BaseWidget
                         ->withCount(['participantes' => fn (Builder $q) => $q->where('estado_participacion', 'terminado')])
                         ->get()
                         ->sum('participantes_count')),
+                Tables\Columns\TextColumn::make('participantes_incompletos')
+                    ->label('Incompletos')
+                    ->alignCenter()
+                    ->getStateUsing(fn (TipoProceso $record) => $record->procesos()
+                        ->withCount(['participantes' => fn (Builder $q) => $q->where('estado_participacion', 'incompleto')])
+                        ->get()
+                        ->sum('participantes_count')),
                 Tables\Columns\TextColumn::make('participantes_retirados')
                     ->label('Retirados')
                     ->alignCenter()

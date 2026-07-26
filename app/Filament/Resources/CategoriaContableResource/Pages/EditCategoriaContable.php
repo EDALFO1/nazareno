@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Filament\Resources\CategoriaContableResource\Pages;
+
+use App\Filament\Resources\CategoriaContableResource;
+use Filament\Actions;
+use Filament\Resources\Pages\EditRecord;
+
+class EditCategoriaContable extends EditRecord
+{
+    protected static string $resource = CategoriaContableResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\DeleteAction::make(),
+        ];
+    }
+}
