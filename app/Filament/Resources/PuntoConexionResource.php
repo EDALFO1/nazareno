@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PuntoConexionResource\Pages;
 use App\Filament\Resources\PuntoConexionResource\RelationManagers\MiembrosRelationManager;
+use App\Filament\Resources\PuntoConexionResource\RelationManagers\SesionesRelationManager;
 use App\Models\Persona;
 use App\Models\PuntoConexion;
 use Filament\Forms;
@@ -131,6 +132,15 @@ class PuntoConexionResource extends Resource
                 Tables\Columns\TextColumn::make('miembros_count')
                     ->label('Miembros')
                     ->counts('miembros'),
+                Tables\Columns\TextColumn::make('ultima_reunion')
+                    ->label('Última reunión')
+                    ->getStateUsing(fn (PuntoConexion $record) => $record->sesiones()->max('fecha'))
+                    ->date()
+                    ->color(fn (PuntoConexion $record) => match (true) {
+                        ! $record->sesiones()->max('fecha') => 'gray',
+                        \Illuminate\Support\Carbon::parse($record->sesiones()->max('fecha'))->lt(now()->subDays(14)) => 'danger',
+                        default => 'success',
+                    }),
                 Tables\Columns\IconColumn::make('activo')
                     ->boolean(),
             ])
@@ -154,6 +164,7 @@ class PuntoConexionResource extends Resource
     {
         return [
             MiembrosRelationManager::class,
+            SesionesRelationManager::class,
         ];
     }
 

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Services\AlcanceService;
 use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['name', 'email', 'password'])]
@@ -33,18 +34,14 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * IDs de personas visibles para este usuario, o null si no tiene restricción
-     * (Admin Principal / Admin General ven todo). Un líder de red solo ve su
-     * propio subárbol de discipulado.
+     * (Admin Principal / Admin General ven todo). Cálculo real en
+     * App\Services\AlcanceService.
      *
      * @return array<int>|null
      */
     public function alcancePersonaIds(): ?array
     {
-        if (! $this->hasRole('lider_red') || $this->hasAnyRole(['super_admin', 'admin_general'])) {
-            return null;
-        }
-
-        return $this->persona?->subarbolIds() ?? [];
+        return app(AlcanceService::class)->personaIdsVisiblesPara($this);
     }
 
     /**

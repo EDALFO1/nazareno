@@ -46,11 +46,94 @@
             @error('direccion') <p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p> @enderror
         </div>
 
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+                <label for="genero" class="mb-1.5 block text-sm font-semibold text-stone-700">Género</label>
+                <select id="genero" wire:model="genero"
+                    class="w-full rounded-lg border border-stone-300 px-3.5 py-2.5 text-stone-900 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
+                    <option value="">Seleccione una opción</option>
+                    <option value="masculino">Masculino</option>
+                    <option value="femenino">Femenino</option>
+                </select>
+                @error('genero') <p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
+                <label for="fecha_nacimiento" class="mb-1.5 block text-sm font-semibold text-stone-700">Fecha de nacimiento</label>
+                <input type="date" id="fecha_nacimiento" wire:model="fecha_nacimiento"
+                    class="w-full rounded-lg border border-stone-300 px-3.5 py-2.5 text-stone-900 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
+                @error('fecha_nacimiento') <p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <div>
+            <label for="fecha_primera_visita" class="mb-1.5 block text-sm font-semibold text-stone-700">Fecha de primera visita</label>
+            <input type="date" id="fecha_primera_visita" wire:model="fecha_primera_visita"
+                class="w-full rounded-lg border border-stone-300 px-3.5 py-2.5 text-stone-900 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
+            @error('fecha_primera_visita') <p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p> @enderror
+        </div>
+
         <div>
             <label for="peticion_oracion" class="mb-1.5 block text-sm font-semibold text-stone-700">¿Tienes alguna petición de oración?</label>
             <textarea id="peticion_oracion" wire:model="peticion_oracion" rows="4"
                 class="w-full resize-y rounded-lg border border-stone-300 px-3.5 py-2.5 text-stone-900 placeholder-stone-400 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"></textarea>
             @error('peticion_oracion') <p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p> @enderror
+        </div>
+
+        <div class="rounded-lg border border-stone-200 bg-stone-50 p-4">
+            <p class="mb-3 text-sm font-semibold text-stone-700">Datos del acudiente <span class="font-normal text-stone-500">(solo si eres menor de edad)</span></p>
+            <div class="grid gap-5 sm:grid-cols-3">
+                <div>
+                    <label for="acudiente" class="mb-1.5 block text-sm font-semibold text-stone-700">Nombre del acudiente</label>
+                    <input type="text" id="acudiente" wire:model="acudiente"
+                        class="w-full rounded-lg border border-stone-300 px-3.5 py-2.5 text-stone-900 placeholder-stone-400 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
+                    @error('acudiente') <p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p> @enderror
+                </div>
+
+                <div>
+                    <label for="telefono_acudiente" class="mb-1.5 block text-sm font-semibold text-stone-700">Teléfono del acudiente</label>
+                    <input type="tel" id="telefono_acudiente" wire:model="telefono_acudiente"
+                        class="w-full rounded-lg border border-stone-300 px-3.5 py-2.5 text-stone-900 placeholder-stone-400 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
+                    @error('telefono_acudiente') <p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p> @enderror
+                </div>
+
+                <div>
+                    <label for="parentesco" class="mb-1.5 block text-sm font-semibold text-stone-700">Parentesco</label>
+                    <select id="parentesco" wire:model="parentesco"
+                        class="w-full rounded-lg border border-stone-300 px-3.5 py-2.5 text-stone-900 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
+                        <option value="">Seleccione una opción</option>
+                        <option value="padre">Padre</option>
+                        <option value="madre">Madre</option>
+                        <option value="abuelo_a">Abuelo/a</option>
+                        <option value="tio_a">Tío/a</option>
+                        <option value="hermano_a">Hermano/a</option>
+                        <option value="tutor_legal">Tutor legal</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                    @error('parentesco') <p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p> @enderror
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-lg border border-stone-200 bg-stone-50 p-4">
+            <label class="flex items-start gap-3">
+                <input type="checkbox" wire:model="autorizoDatos"
+                    class="mt-1 h-4 w-4 shrink-0 rounded border-stone-300 text-amber-600 focus:ring-amber-500/30">
+                <span class="text-sm text-stone-600">
+                    {{ config('app.name') }} es el Responsable del tratamiento de sus datos. Al marcar la casilla de
+                    aceptación, usted autoriza de manera libre, voluntaria y expresa el uso de los datos aquí
+                    registrados con la finalidad exclusiva de gestionar el registro de asistencia, brindar
+                    acompañamiento pastoral y enviar invitaciones a nuestros cultos o actividades comunitarias. Se le
+                    informa que este registro puede revelar de forma indirecta su afiliación religiosa (considerado
+                    un dato sensible bajo la Ley 1581 de 2012) y que su aceptación es totalmente facultativa. Como
+                    titular, puede solicitar en cualquier momento la consulta, corrección o eliminación de sus datos
+                    enviando una solicitud al correo electrónico: {{ config('app.correo_datos_personales') }}.
+                    <span class="text-rose-600">*</span>
+                    <br>
+                    <span class="text-xs text-stone-500">Si estás registrando a un menor de edad, esta autorización debes darla tú como su acudiente.</span>
+                </span>
+            </label>
+            @error('autorizoDatos') <p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p> @enderror
         </div>
 
         <button type="submit" wire:loading.attr="disabled"

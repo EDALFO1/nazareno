@@ -28,6 +28,7 @@ class PermissionSeeder extends Seeder
         $resources = [
             'persona', 'punto::conexion', 'proceso', 'red', 'user',
             'categoria::contable', 'movimiento::contable', 'donacion::activo',
+            'cuenta::bancaria', 'cuenta::pendiente',
         ];
 
         foreach ($resources as $resource) {

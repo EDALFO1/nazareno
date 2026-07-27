@@ -133,12 +133,48 @@ class PersonaResource extends Resource
                             ->visible(fn () => ! Auth::user()->hasRole('lider_red'))
                             ->native(false),
                     ]),
+                Forms\Components\Section::make('Protección de datos')
+                    ->description(
+                        config('app.name').' es el Responsable del tratamiento de sus datos. Al marcar la casilla de aceptación, '
+                        .'la persona (o su acudiente, si es menor de edad) autoriza de manera libre, voluntaria y expresa el uso de los '
+                        .'datos aquí registrados con la finalidad exclusiva de gestionar el registro de asistencia, brindar acompañamiento '
+                        .'pastoral y enviar invitaciones a nuestros cultos o actividades comunitarias. Se le informa que este registro puede '
+                        .'revelar de forma indirecta su afiliación religiosa (considerado un dato sensible bajo la Ley 1581 de 2012) y que su '
+                        .'aceptación es totalmente facultativa. Como titular, puede solicitar en cualquier momento la consulta, corrección o '
+                        .'eliminación de sus datos enviando una solicitud al correo electrónico: '.config('app.correo_datos_personales').'.'
+                    )
+                    ->schema([
+                        Forms\Components\Checkbox::make('autorizacion_confirmada')
+                            ->label('La persona (o su acudiente) leyó el texto anterior y autorizó el tratamiento de sus datos.')
+                            ->required()
+                            // required() no basta: en Laravel `false` no cuenta como
+                            // "vacío", así que una casilla sin marcar pasaría la
+                            // validación. `accepted` sí exige que sea true.
+                            ->rules(['accepted'])
+                            ->dehydrated(false),
+                    ])
+                    ->visible(fn (string $operation, ?Persona $record) => $operation === 'create' || ($record && ! $record->tiene_autorizacion_datos)),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort(function (Builder $query) {
+                $ids = Persona::idsEnOrdenJerarquico();
+
+                if ($ids) {
+                    // CASE en vez de FIELD(): FIELD() es exclusivo de MySQL y
+                    // los tests corren sobre SQLite.
+                    $casos = collect($ids)
+                        ->map(fn (int $id, int $posicion) => "WHEN {$id} THEN {$posicion}")
+                        ->implode(' ');
+
+                    $query->orderByRaw("CASE id {$casos} ELSE " . count($ids) . ' END');
+                }
+
+                return $query;
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('nombres')
                     ->label('Nombre')
@@ -176,6 +212,10 @@ class PersonaResource extends Resource
                     ->label('Primera visita')
                     ->date()
                     ->sortable(),
+                Tables\Columns\IconColumn::make('tiene_autorizacion_datos')
+                    ->label('Autorización datos')
+                    ->boolean()
+                    ->tooltip(fn (Persona $record) => $record->tiene_autorizacion_datos ? 'Autorización de tratamiento de datos registrada.' : 'Falta registrar la autorización de tratamiento de datos.'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('red_id')
@@ -191,6 +231,9 @@ class PersonaResource extends Resource
                 Tables\Filters\Filter::make('lideres_principales')
                     ->label('Solo líderes principales')
                     ->query(fn (Builder $query) => $query->whereNotNull('red_id')->whereNull('lider_id')),
+                Tables\Filters\Filter::make('sin_autorizacion_datos')
+                    ->label('Sin autorización de datos')
+                    ->query(fn (Builder $query) => $query->whereDoesntHave('autorizacionesTratamientoDatos')),
             ])
             ->actions([
                 Tables\Actions\Action::make('ver_rama')

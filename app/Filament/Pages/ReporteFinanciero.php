@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\CuentaPendiente;
 use App\Models\MovimientoContable;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -73,6 +74,8 @@ class ReporteFinanciero extends Page implements HasForms
      *     egresosPorCategoria: Collection,
      *     movimientosIngreso: Collection,
      *     movimientosEgreso: Collection,
+     *     totalPorCobrar: float,
+     *     totalPorPagar: float,
      * }
      */
     #[Computed]
@@ -81,6 +84,10 @@ class ReporteFinanciero extends Page implements HasForms
         // El saldo actual es histórico (caja real), no depende del filtro de fechas.
         $saldoActual = (float) MovimientoContable::where('tipo', 'ingreso')->sum('monto')
             - (float) MovimientoContable::where('tipo', 'egreso')->sum('monto');
+
+        // Cuentas por cobrar/pagar tampoco dependen del filtro: es lo pendiente hoy.
+        $totalPorCobrar = (float) CuentaPendiente::where('tipo', 'por_cobrar')->get()->sum('saldo_pendiente');
+        $totalPorPagar = (float) CuentaPendiente::where('tipo', 'por_pagar')->get()->sum('saldo_pendiente');
 
         $construirQuery = function (string $tipo) {
             $query = MovimientoContable::query()->where('tipo', $tipo);
@@ -117,6 +124,8 @@ class ReporteFinanciero extends Page implements HasForms
             'egresosPorCategoria' => $agruparPorCategoria($movimientosEgreso),
             'movimientosIngreso' => $movimientosIngreso,
             'movimientosEgreso' => $movimientosEgreso,
+            'totalPorCobrar' => $totalPorCobrar,
+            'totalPorPagar' => $totalPorPagar,
         ];
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'nombre', 'red_id', 'lider_id', 'anfitrion_persona_id',
@@ -42,5 +43,10 @@ class PuntoConexion extends Model
         return $this->belongsToMany(Persona::class, 'punto_conexion_persona')
             ->withPivot('fecha_ingreso')
             ->withTimestamps();
+    }
+
+    public function sesiones(): HasMany
+    {
+        return $this->hasMany(SesionPuntoConexion::class)->orderByDesc('fecha');
     }
 }

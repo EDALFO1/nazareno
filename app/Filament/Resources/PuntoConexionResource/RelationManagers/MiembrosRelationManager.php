@@ -33,6 +33,11 @@ class MiembrosRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('nombres')
+            // Filament adivina el nombre de la relación inversa pluralizando
+            // "PuntoConexion" -> "puntoConexions", pero en Persona se llama
+            // "puntosConexion". Sin esto, buscar en el modal de "Adjuntar"
+            // truena con "Call to undefined method Persona::puntoConexions()".
+            ->inverseRelationship('puntosConexion')
             ->columns([
                 Tables\Columns\TextColumn::make('nombres')
                     ->label('Nombre')

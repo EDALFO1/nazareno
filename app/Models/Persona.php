@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\DB;
+use App\Services\ArbolDiscipuladoService;
+use App\Services\OrdenJerarquicoService;
 
 #[Fillable([
     'nombres', 'apellidos', 'telefono', 'direccion', 'correo', 'genero',
@@ -109,6 +110,11 @@ class Persona extends Model
         return $this->hasMany(DonacionActivo::class);
     }
 
+    public function cuentasPendientes(): HasMany
+    {
+        return $this->hasMany(CuentaPendiente::class);
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -141,25 +147,30 @@ class Persona extends Model
         return $this->hasMany(Asistencia::class);
     }
 
+    public function asistenciasPuntoConexion(): HasMany
+    {
+        return $this->hasMany(AsistenciaPuntoConexion::class);
+    }
+
+    public function autorizacionesTratamientoDatos(): HasMany
+    {
+        return $this->hasMany(AutorizacionTratamientoDatos::class);
+    }
+
+    protected function tieneAutorizacionDatos(): Attribute
+    {
+        return Attribute::get(fn () => $this->autorizacionesTratamientoDatos()->exists());
+    }
+
     /**
-     * IDs de todos los descendientes en el árbol de discipulado (cualquier profundidad),
-     * usando una CTE recursiva de MySQL. No incluye el propio id.
+     * IDs de todos los descendientes en el árbol de discipulado (cualquier profundidad).
+     * Cálculo real en App\Services\ArbolDiscipuladoService.
      *
      * @return array<int>
      */
     public function descendientesIds(): array
     {
-        $rows = DB::select(<<<'SQL'
-            WITH RECURSIVE arbol AS (
-                SELECT id FROM personas WHERE lider_id = ?
-                UNION ALL
-                SELECT p.id FROM personas p
-                INNER JOIN arbol a ON p.lider_id = a.id
-            )
-            SELECT id FROM arbol
-        SQL, [$this->id]);
-
-        return array_map(fn ($row) => $row->id, $rows);
+        return app(ArbolDiscipuladoService::class)->descendientesIds($this);
     }
 
     /**
@@ -169,6 +180,23 @@ class Persona extends Model
      */
     public function subarbolIds(): array
     {
-        return [$this->id, ...$this->descendientesIds()];
+        return app(ArbolDiscipuladoService::class)->subarbolIds($this);
+    }
+
+    /**
+     * IDs de todas las personas en orden jerárquico: agrupadas por red (en
+     * orden alfabético de red), y dentro de cada red, primero el líder
+     * principal, luego sus líderes de primera línea, luego los de segunda,
+     * etc. (recorrido en profundidad del árbol de discipulado). Los hermanos
+     * de un mismo nivel quedan en orden alfabético entre sí. Las personas sin
+     * red asignada quedan al final, en orden alfabético.
+     *
+     * Cálculo real en App\Services\OrdenJerarquicoService.
+     *
+     * @return array<int>
+     */
+    public static function idsEnOrdenJerarquico(): array
+    {
+        return app(OrdenJerarquicoService::class)->calcular();
     }
 }

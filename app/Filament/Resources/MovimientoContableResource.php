@@ -17,7 +17,7 @@ class MovimientoContableResource extends Resource
 {
     protected static ?string $model = MovimientoContable::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-banknotes';
+    protected static ?string $navigationIcon = 'heroicon-o-arrows-right-left';
 
     protected static ?string $navigationGroup = 'Finanzas';
 
@@ -103,6 +103,11 @@ class MovimientoContableResource extends Resource
                             ->searchable()
                             ->preload()
                             ->native(false),
+                        Forms\Components\Select::make('cuenta_bancaria_id')
+                            ->label('Cuenta bancaria')
+                            ->relationship('cuentaBancaria', 'nombre')
+                            ->native(false)
+                            ->helperText('Opcional. Solo si este movimiento entró/salió de una cuenta bancaria específica.'),
                     ]),
                 Forms\Components\Section::make('Detalle')
                     ->schema([
@@ -111,8 +116,15 @@ class MovimientoContableResource extends Resource
                             ->columnSpanFull(),
                         Forms\Components\FileUpload::make('comprobante')
                             ->label('Comprobante (recibo, voucher, factura)')
+                            // Disco privado (storage/app/private, nunca público): Filament
+                            // genera enlaces firmados de 5 minutos en vez de una URL pública
+                            // fija, para que nadie sin sesión pueda ver un comprobante
+                            // financiero aunque adivine o comparta el enlace.
+                            ->disk('local')
+                            ->visibility('private')
                             ->directory('comprobantes')
                             ->image()
+                            ->maxSize(5120)
                             ->openable()
                             ->downloadable(),
                     ]),
@@ -154,6 +166,9 @@ class MovimientoContableResource extends Resource
                         'cheque' => 'Cheque',
                         default => $state,
                     }),
+                Tables\Columns\TextColumn::make('cuentaBancaria.nombre')
+                    ->label('Cuenta bancaria')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\IconColumn::make('comprobante')
                     ->label('Comprobante')
                     ->boolean()
@@ -174,6 +189,9 @@ class MovimientoContableResource extends Resource
                 Tables\Filters\SelectFilter::make('red_id')
                     ->label('Red')
                     ->relationship('red', 'nombre'),
+                Tables\Filters\SelectFilter::make('cuenta_bancaria_id')
+                    ->label('Cuenta bancaria')
+                    ->relationship('cuentaBancaria', 'nombre'),
                 Tables\Filters\SelectFilter::make('metodo_pago')
                     ->options([
                         'efectivo' => 'Efectivo',

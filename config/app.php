@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Correo para solicitudes de protección de datos
+    |--------------------------------------------------------------------------
+    |
+    | Correo al que las personas escriben para pedir consultar, corregir o
+    | eliminar sus datos (Ley 1581 de 2012). Se muestra en los textos de
+    | autorización de tratamiento de datos.
+    |
+    */
+
+    'correo_datos_personales' => env('DATOS_PERSONALES_CORREO', 'hello@example.com'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |
