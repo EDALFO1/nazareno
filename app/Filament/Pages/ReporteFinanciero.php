@@ -4,6 +4,8 @@ namespace App\Filament\Pages;
 
 use App\Models\CuentaPendiente;
 use App\Models\MovimientoContable;
+use App\Services\ReporteFinancieroExportService;
+use Filament\Actions;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -12,6 +14,7 @@ use Filament\Pages\Page;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ReporteFinanciero extends Page implements HasForms
 {
@@ -63,6 +66,26 @@ class ReporteFinanciero extends Page implements HasForms
                     ->native(false)
                     ->live(),
             ]);
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\Action::make('exportar_excel')
+                ->label('Exportar a Excel')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('gray')
+                ->action(fn () => $this->exportarExcel()),
+        ];
+    }
+
+    public function exportarExcel(): BinaryFileResponse
+    {
+        $ruta = app(ReporteFinancieroExportService::class)->generar($this->reporte(), $this->desde, $this->hasta);
+
+        $nombreArchivo = 'reporte-financiero-'.now()->format('Y-m-d').'.xlsx';
+
+        return response()->download($ruta, $nombreArchivo)->deleteFileAfterSend(true);
     }
 
     /**

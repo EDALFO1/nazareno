@@ -214,6 +214,30 @@ class SmokeAdminPanelTest extends TestCase
         $this->assertSame('private', $campo->getVisibility());
     }
 
+    public function test_crear_movimiento_contable_vuelve_al_formulario_en_blanco_no_al_listado(): void
+    {
+        // Se suelen registrar varios movimientos seguidos (ofrendas de un
+        // mismo culto), así que "Crear" debe dejar listo un formulario nuevo
+        // en vez de mandar al listado como hace Filament por defecto.
+        $admin = User::factory()->create();
+        $admin->assignRole('super_admin');
+        $this->actingAs($admin);
+
+        $categoria = \App\Models\CategoriaContable::where('tipo', 'ingreso')->firstOrFail();
+
+        Livewire::test(\App\Filament\Resources\MovimientoContableResource\Pages\CreateMovimientoContable::class)
+            ->fillForm([
+                'tipo' => 'ingreso',
+                'categoria_contable_id' => $categoria->id,
+                'fecha' => now()->format('Y-m-d'),
+                'monto' => 50000,
+                'metodo_pago' => 'efectivo',
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors()
+            ->assertRedirect(\App\Filament\Resources\MovimientoContableResource::getUrl('create'));
+    }
+
     public function test_registrar_ingreso_de_diezmo_y_generar_certificado_de_donante(): void
     {
         [, $carlos] = $this->crearDatosDemo();
@@ -296,6 +320,55 @@ class SmokeAdminPanelTest extends TestCase
         $this->assertSame(80000.0, $reporte['totalEgresos']);
         $this->assertSame('Diezmo', $reporte['ingresosPorCategoria']->first()['categoria']);
         $this->assertSame('Servicios públicos', $reporte['egresosPorCategoria']->first()['categoria']);
+
+        // Exportar a Excel: mismos datos, en un archivo .xlsx de verdad con 3 hojas.
+        $ruta = app(\App\Services\ReporteFinancieroExportService::class)->generar(
+            $reporte, now()->startOfMonth()->format('Y-m-d'), now()->endOfMonth()->format('Y-m-d')
+        );
+
+        $this->assertFileExists($ruta);
+
+        $lector = new \OpenSpout\Reader\XLSX\Reader();
+        $lector->open($ruta);
+
+        $nombresHojas = [];
+        $filasResumen = [];
+        $filasIngresos = [];
+
+        foreach ($lector->getSheetIterator() as $hoja) {
+            $nombresHojas[] = $hoja->getName();
+
+            if ($hoja->getName() === 'Resumen') {
+                foreach ($hoja->getRowIterator() as $fila) {
+                    $filasResumen[] = $fila->toArray();
+                }
+            }
+
+            if ($hoja->getName() === 'Ingresos') {
+                foreach ($hoja->getRowIterator() as $fila) {
+                    $filasIngresos[] = $fila->toArray();
+                }
+            }
+        }
+
+        $lector->close();
+        unlink($ruta);
+
+        $this->assertSame(['Resumen', 'Ingresos', 'Egresos'], $nombresHojas);
+
+        // Regresión: la fila "Periodo" no debe traer hora pegada (ej. "17:40:55"),
+        // sin importar si $desde/$hasta llegan como 'Y-m-d' o con hora incluida.
+        $this->assertSame(
+            ['Periodo', now()->startOfMonth()->format('d/m/Y').' a '.now()->endOfMonth()->format('d/m/Y')],
+            $filasResumen[1]
+        );
+
+        $this->assertSame(['Fecha', 'Categoría', 'Persona', 'Método', 'Monto'], $filasIngresos[0]);
+        $this->assertSame('Diezmo', $filasIngresos[1][1]);
+        $this->assertSame('Carlos Ramírez', $filasIngresos[1][2]);
+        // El valor numérico vuelve del XLSX como int o float según si Excel
+        // le detectó decimales; por eso se compara el valor, no el tipo exacto.
+        $this->assertEquals(200000, $filasIngresos[1][4]);
     }
 
     public function test_cuenta_bancaria_calcula_saldo_actual_a_partir_de_sus_movimientos(): void

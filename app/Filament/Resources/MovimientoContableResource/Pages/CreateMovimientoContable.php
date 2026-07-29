@@ -16,4 +16,15 @@ class CreateMovimientoContable extends CreateRecord
 
         return $data;
     }
+
+    /**
+     * Normalmente "Crear" redirige al listado. Aquí es común registrar varios
+     * movimientos seguidos (ofrendas de un mismo culto, por ejemplo), así que
+     * al guardar vuelve a este mismo formulario, ya en blanco, listo para el
+     * siguiente registro.
+     */
+    protected function getRedirectUrl(): string
+    {
+        return static::getResource()::getUrl('create');
+    }
 }
