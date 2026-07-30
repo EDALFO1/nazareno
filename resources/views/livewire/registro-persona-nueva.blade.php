@@ -25,6 +25,27 @@
 
         <div class="grid gap-5 sm:grid-cols-2">
             <div>
+                <label for="tipo_documento" class="mb-1.5 block text-sm font-semibold text-stone-700">Tipo de documento</label>
+                <select id="tipo_documento" wire:model="tipo_documento"
+                    class="w-full rounded-lg border border-stone-300 px-3.5 py-2.5 text-stone-900 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
+                    <option value="">Seleccione una opción</option>
+                    @foreach (\App\Models\Persona::TIPOS_DOCUMENTO as $valor => $etiqueta)
+                        <option value="{{ $valor }}">{{ $etiqueta }}</option>
+                    @endforeach
+                </select>
+                @error('tipo_documento') <p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
+                <label for="numero_documento" class="mb-1.5 block text-sm font-semibold text-stone-700">Número de documento</label>
+                <input type="text" id="numero_documento" wire:model="numero_documento" inputmode="numeric" autocomplete="off"
+                    class="w-full rounded-lg border border-stone-300 px-3.5 py-2.5 text-stone-900 placeholder-stone-400 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
+                @error('numero_documento') <p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
                 <label for="telefono" class="mb-1.5 block text-sm font-semibold text-stone-700">Teléfono</label>
                 <input type="tel" id="telefono" wire:model="telefono" autocomplete="tel"
                     class="w-full rounded-lg border border-stone-300 px-3.5 py-2.5 text-stone-900 placeholder-stone-400 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">

@@ -12,13 +12,35 @@ use App\Services\ArbolDiscipuladoService;
 use App\Services\OrdenJerarquicoService;
 
 #[Fillable([
-    'nombres', 'apellidos', 'telefono', 'direccion', 'correo', 'genero',
+    'nombres', 'apellidos', 'tipo_documento', 'numero_documento', 'telefono', 'direccion', 'correo', 'genero',
     'fecha_nacimiento', 'fecha_primera_visita', 'peticion_oracion', 'estado',
     'acudiente', 'telefono_acudiente', 'parentesco',
     'red_id', 'lider_id', 'user_id',
 ])]
 class Persona extends Model
 {
+    public const TIPOS_DOCUMENTO = [
+        'cedula_ciudadania' => 'Cédula de ciudadanía',
+        'tarjeta_identidad' => 'Tarjeta de identidad',
+        'registro_civil' => 'Registro civil',
+        'cedula_extranjeria' => 'Cédula de extranjería',
+        'permiso_proteccion_temporal' => 'Permiso por Protección Temporal (PPT)',
+        'permiso_especial_permanencia' => 'Permiso Especial de Permanencia (PEP)',
+        'pasaporte' => 'Pasaporte',
+        'otro' => 'Otro',
+    ];
+
+    public const SIGLAS_DOCUMENTO = [
+        'cedula_ciudadania' => 'CC',
+        'tarjeta_identidad' => 'TI',
+        'registro_civil' => 'RC',
+        'cedula_extranjeria' => 'CE',
+        'permiso_proteccion_temporal' => 'PPT',
+        'permiso_especial_permanencia' => 'PEP',
+        'pasaporte' => 'PA',
+        'otro' => 'Doc.',
+    ];
+
     protected function casts(): array
     {
         return [
@@ -30,6 +52,23 @@ class Persona extends Model
     protected function nombreCompleto(): Attribute
     {
         return Attribute::get(fn () => "{$this->nombres} {$this->apellidos}");
+    }
+
+    /**
+     * Documento formateado con su sigla (ej. "CC 1234567890"), para mostrar
+     * en tablas y reportes. Null si la persona aún no tiene documento registrado.
+     */
+    protected function documento(): Attribute
+    {
+        return Attribute::get(function () {
+            if (! $this->numero_documento) {
+                return null;
+            }
+
+            $sigla = self::SIGLAS_DOCUMENTO[$this->tipo_documento] ?? '';
+
+            return trim("{$sigla} {$this->numero_documento}");
+        });
     }
 
     /**

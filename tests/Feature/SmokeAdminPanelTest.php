@@ -36,6 +36,8 @@ class SmokeAdminPanelTest extends TestCase
         Livewire::test(\App\Livewire\RegistroPersonaNueva::class)
             ->set('nombres', 'Visitante')
             ->set('apellidos', 'De Prueba')
+            ->set('tipo_documento', 'cedula_ciudadania')
+            ->set('numero_documento', '1000000001')
             ->set('telefono', '3000000000')
             ->set('correo', 'visitante@example.com')
             ->set('genero', 'femenino')
@@ -50,6 +52,8 @@ class SmokeAdminPanelTest extends TestCase
             'apellidos' => 'De Prueba',
             'estado' => 'nuevo',
             'genero' => 'femenino',
+            'tipo_documento' => 'cedula_ciudadania',
+            'numero_documento' => '1000000001',
         ]);
 
         $persona = Persona::where('nombres', 'Visitante')->firstOrFail();
@@ -65,6 +69,8 @@ class SmokeAdminPanelTest extends TestCase
         Livewire::test(\App\Livewire\RegistroPersonaNueva::class)
             ->set('nombres', 'Niño')
             ->set('apellidos', 'DePrueba')
+            ->set('tipo_documento', 'tarjeta_identidad')
+            ->set('numero_documento', '1000000002')
             ->set('acudiente', 'Madre De Prueba')
             ->set('telefono_acudiente', '3000000001')
             ->set('parentesco', 'madre')
@@ -88,6 +94,8 @@ class SmokeAdminPanelTest extends TestCase
         Livewire::test(\App\Livewire\RegistroPersonaNueva::class)
             ->set('nombres', 'Sin')
             ->set('apellidos', 'Genero')
+            ->set('tipo_documento', 'cedula_ciudadania')
+            ->set('numero_documento', '1000000003')
             ->set('genero', '')
             ->set('parentesco', '')
             ->set('autorizoDatos', true)
@@ -103,6 +111,8 @@ class SmokeAdminPanelTest extends TestCase
             Livewire::test(\App\Livewire\RegistroPersonaNueva::class)
                 ->set('nombres', "Visitante{$i}")
                 ->set('apellidos', 'Prueba')
+                ->set('tipo_documento', 'cedula_ciudadania')
+                ->set('numero_documento', "200000{$i}")
                 ->set('autorizoDatos', true)
                 ->call('guardar')
                 ->assertHasNoErrors();
@@ -113,6 +123,8 @@ class SmokeAdminPanelTest extends TestCase
         Livewire::test(\App\Livewire\RegistroPersonaNueva::class)
             ->set('nombres', 'Visitante21')
             ->set('apellidos', 'Prueba')
+            ->set('tipo_documento', 'cedula_ciudadania')
+            ->set('numero_documento', '2000021')
             ->set('autorizoDatos', true)
             ->call('guardar')
             ->assertHasErrors(['nombres']);

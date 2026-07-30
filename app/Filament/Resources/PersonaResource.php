@@ -52,6 +52,14 @@ class PersonaResource extends Resource
                         Forms\Components\TextInput::make('apellidos')
                             ->required()
                             ->maxLength(255),
+                        Forms\Components\Select::make('tipo_documento')
+                            ->label('Tipo de documento')
+                            ->options(Persona::TIPOS_DOCUMENTO)
+                            ->native(false),
+                        Forms\Components\TextInput::make('numero_documento')
+                            ->label('Número de documento')
+                            ->unique(ignoreRecord: true)
+                            ->maxLength(255),
                         Forms\Components\TextInput::make('telefono')
                             ->tel()
                             ->maxLength(255),
@@ -183,6 +191,10 @@ class PersonaResource extends Resource
                     ->iconColor('warning')
                     ->tooltip(fn (Persona $record) => $record->es_lider_principal ? 'Líder principal' : null)
                     ->searchable(['nombres', 'apellidos']),
+                Tables\Columns\TextColumn::make('numero_documento')
+                    ->label('Documento')
+                    ->formatStateUsing(fn (?string $state, Persona $record) => $state ? $record->documento : '—')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('telefono')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('correo')

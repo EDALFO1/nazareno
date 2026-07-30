@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Persona;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class RegistroPersonaNueva extends Component
@@ -11,6 +12,10 @@ class RegistroPersonaNueva extends Component
     public string $nombres = '';
 
     public string $apellidos = '';
+
+    public ?string $tipo_documento = null;
+
+    public string $numero_documento = '';
 
     public string $telefono = '';
 
@@ -46,6 +51,8 @@ class RegistroPersonaNueva extends Component
         return [
             'nombres' => ['required', 'string', 'max:255'],
             'apellidos' => ['required', 'string', 'max:255'],
+            'tipo_documento' => ['required', Rule::in(array_keys(Persona::TIPOS_DOCUMENTO))],
+            'numero_documento' => ['required', 'string', 'max:255', 'unique:personas,numero_documento'],
             'telefono' => ['nullable', 'string', 'max:255'],
             'direccion' => ['nullable', 'string', 'max:255'],
             'correo' => ['nullable', 'email', 'max:255'],
@@ -64,6 +71,7 @@ class RegistroPersonaNueva extends Component
     {
         return [
             'autorizoDatos.accepted' => 'Debes autorizar el tratamiento de tus datos personales para continuar.',
+            'numero_documento.unique' => 'Ya existe una persona registrada con este número de documento.',
         ];
     }
 
@@ -103,7 +111,7 @@ class RegistroPersonaNueva extends Component
         ]);
 
         $this->reset([
-            'nombres', 'apellidos', 'telefono', 'direccion', 'correo', 'genero', 'fecha_nacimiento',
+            'nombres', 'apellidos', 'tipo_documento', 'numero_documento', 'telefono', 'direccion', 'correo', 'genero', 'fecha_nacimiento',
             'peticion_oracion', 'acudiente', 'telefono_acudiente', 'parentesco', 'autorizoDatos',
         ]);
         $this->fecha_primera_visita = now()->toDateString();
