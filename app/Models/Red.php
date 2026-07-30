@@ -25,4 +25,11 @@ class Red extends Model
     {
         return $this->hasMany(PuntoConexion::class);
     }
+
+    public static function rules($id = null): array
+    {
+        return [
+            'nombre' => ['required', 'string', 'max:255', 'unique:redes,nombre,'.$id],
+        ];
+    }
 }

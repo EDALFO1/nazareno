@@ -2,34 +2,44 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Services\AlcanceService;
 use Database\Factories\UserFactory;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Services\AlcanceService;
-use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'rol_id'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, Notifiable;
+    use HasFactory, Notifiable;
 
     public function persona(): HasOne
     {
         return $this->hasOne(Persona::class);
     }
 
-    public function canAccessPanel(Panel $panel): bool
+    public function rol(): BelongsTo
     {
-        return true;
+        return $this->belongsTo(Rol::class);
+    }
+
+    public function hasRol(string $nombre): bool
+    {
+        return $this->rol?->nombre === $nombre;
+    }
+
+    /**
+     * @param  array<int, string>  $nombres
+     */
+    public function hasAnyRol(array $nombres): bool
+    {
+        return in_array($this->rol?->nombre, $nombres, true);
     }
 
     /**
@@ -54,6 +64,16 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+        ];
+    }
+
+    public static function rules($id = null): array
+    {
+        return [
+            'rol_id' => ['required', 'exists:roles,id'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,'.$id],
+            'password' => [$id ? 'nullable' : 'required', 'min:6'],
         ];
     }
 }

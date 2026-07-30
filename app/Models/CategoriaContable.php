@@ -22,4 +22,14 @@ class CategoriaContable extends Model
     {
         return $this->hasMany(MovimientoContable::class);
     }
+
+    public static function rules($id = null): array
+    {
+        return [
+            'tipo' => ['required', 'in:ingreso,egreso'],
+            'nombre' => ['required', 'string', 'max:255'],
+            'descripcion' => ['nullable', 'string', 'max:255'],
+            'activo' => ['nullable', 'boolean'],
+        ];
+    }
 }

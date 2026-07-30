@@ -82,6 +82,19 @@ class AlertasService
      *
      * @param  array<int>|null  $alcanceIds
      */
+    /**
+     * Total de alertas "urgentes" (personas sin retomar + puntos sin
+     * reportar), usado para el contador en el header. Los cumpleaños no
+     * cuentan aquí porque no son una alerta que requiera acción.
+     *
+     * @param  array<int>|null  $alcanceIds
+     */
+    public function totalAlertas(?array $alcanceIds = null): int
+    {
+        return $this->personasSinRetomar($alcanceIds)->count()
+            + $this->puntosSinReportar($alcanceIds)->count();
+    }
+
     public function cumpleanosDelMes(?array $alcanceIds = null): Collection
     {
         $query = Persona::query()

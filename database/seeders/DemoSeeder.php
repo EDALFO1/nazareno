@@ -8,6 +8,7 @@ use App\Models\Persona;
 use App\Models\Proceso;
 use App\Models\PuntoConexion;
 use App\Models\Red;
+use App\Models\Rol;
 use App\Models\TipoProceso;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -29,9 +30,12 @@ class DemoSeeder extends Seeder
         ]);
         $carlosUser = User::firstOrCreate(
             ['email' => 'carlos.lider@ciudaddedios.test'],
-            ['name' => 'Carlos Ramírez', 'password' => bcrypt('Lider2026!')]
+            [
+                'name' => 'Carlos Ramírez',
+                'password' => bcrypt('Lider2026!'),
+                'rol_id' => Rol::where('nombre', 'lider_red')->value('id'),
+            ]
         );
-        $carlosUser->assignRole('lider_red');
         $carlos->update(['user_id' => $carlosUser->id]);
 
         $andres = Persona::create([
@@ -136,10 +140,13 @@ class DemoSeeder extends Seeder
         }
 
         // --- Admin General de prueba ---
-        $adminGeneral = User::firstOrCreate(
+        User::firstOrCreate(
             ['email' => 'admin.general@ciudaddedios.test'],
-            ['name' => 'Admin General', 'password' => bcrypt('AdminGeneral2026!')]
+            [
+                'name' => 'Admin General',
+                'password' => bcrypt('AdminGeneral2026!'),
+                'rol_id' => Rol::where('nombre', 'admin_general')->value('id'),
+            ]
         );
-        $adminGeneral->assignRole('admin_general');
     }
 }

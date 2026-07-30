@@ -75,4 +75,18 @@ class CuentaPendiente extends Model
             return 'pendiente';
         });
     }
+
+    public static function rules($id = null): array
+    {
+        return [
+            'tipo' => ['required', 'in:por_cobrar,por_pagar'],
+            'categoria_contable_id' => ['required', 'exists:categorias_contables,id'],
+            'persona_id' => ['nullable', 'exists:personas,id'],
+            'descripcion' => ['required', 'string', 'max:255'],
+            'monto_total' => ['required', 'numeric', 'min:0.01'],
+            'fecha' => ['required', 'date'],
+            'fecha_vencimiento' => ['nullable', 'date'],
+            'notas' => ['nullable', 'string'],
+        ];
+    }
 }
