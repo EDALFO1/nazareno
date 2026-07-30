@@ -31,4 +31,14 @@ class Proceso extends Model
     {
         return $this->hasMany(ProcesoParticipante::class);
     }
+
+    public static function rules($id = null): array
+    {
+        return [
+            'tipo_proceso_id' => ['required', 'exists:tipos_proceso,id'],
+            'nombre' => ['required', 'string', 'max:255'],
+            'fecha_inicio' => ['nullable', 'date'],
+            'estado' => ['required', 'in:planificado,en_curso,finalizado'],
+        ];
+    }
 }

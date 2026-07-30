@@ -11,7 +11,7 @@ use OpenSpout\Writer\XLSX\Writer;
 
 /**
  * Genera el archivo Excel (.xlsx) del Reporte financiero: mismos datos que se
- * ven en pantalla (App\Filament\Pages\ReporteFinanciero::reporte()), en tres
+ * ven en pantalla (App\Http\Controllers\ReporteFinancieroController::reporte()), en tres
  * hojas — Resumen, Ingresos, Egresos.
  */
 class ReporteFinancieroExportService

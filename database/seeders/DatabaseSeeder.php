@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Red;
+use App\Models\Rol;
 use App\Models\TipoProceso;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -17,8 +18,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(PermissionSeeder::class);
-        $this->call(RoleSeeder::class);
+        $this->call(ModuloSeeder::class);
+        $this->call(RolSeeder::class);
         $this->call(CategoriaContableSeeder::class);
 
         Red::firstOrCreate(['nombre' => 'Hombres']);
@@ -36,10 +37,13 @@ class DatabaseSeeder extends Seeder
             TipoProceso::firstOrCreate(['codigo' => $tipo['codigo']], $tipo);
         }
 
-        $adminPrincipal = User::firstOrCreate(
+        User::firstOrCreate(
             ['email' => 'admin@ciudaddedios.test'],
-            ['name' => 'Admin Principal', 'password' => bcrypt('CiudadDeDios2026!')]
+            [
+                'name' => 'Admin Principal',
+                'password' => bcrypt('CiudadDeDios2026!'),
+                'rol_id' => Rol::where('nombre', 'super_admin')->value('id'),
+            ]
         );
-        $adminPrincipal->assignRole('super_admin');
     }
 }

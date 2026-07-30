@@ -34,4 +34,16 @@ class CuentaBancaria extends Model
             return (float) $this->saldo_inicial + $ingresos - $egresos;
         });
     }
+
+    public static function rules($id = null): array
+    {
+        return [
+            'nombre' => ['required', 'string', 'max:255'],
+            'banco' => ['nullable', 'string', 'max:255'],
+            'numero_cuenta' => ['nullable', 'string', 'max:255'],
+            'tipo_cuenta' => ['nullable', 'in:ahorros,corriente'],
+            'saldo_inicial' => ['required', 'numeric'],
+            'activa' => ['nullable', 'boolean'],
+        ];
+    }
 }

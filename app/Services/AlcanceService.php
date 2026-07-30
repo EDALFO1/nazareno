@@ -18,7 +18,7 @@ class AlcanceService
      */
     public function personaIdsVisiblesPara(User $user): ?array
     {
-        if (! $user->hasRole('lider_red') || $user->hasAnyRole(['super_admin', 'admin_general'])) {
+        if (! $user->hasRol('lider_red') || $user->hasAnyRol(['super_admin', 'admin_general'])) {
             return null;
         }
 

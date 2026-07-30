@@ -23,4 +23,16 @@ class DonacionActivo extends Model
     {
         return $this->belongsTo(Persona::class);
     }
+
+    public static function rules($id = null): array
+    {
+        return [
+            'persona_id' => ['nullable', 'exists:personas,id'],
+            'fecha' => ['required', 'date'],
+            'descripcion' => ['required', 'string', 'max:255'],
+            'valor_estimado' => ['nullable', 'numeric'],
+            'ubicacion_asignada' => ['nullable', 'string', 'max:255'],
+            'notas' => ['nullable', 'string'],
+        ];
+    }
 }

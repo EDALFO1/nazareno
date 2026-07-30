@@ -238,4 +238,28 @@ class Persona extends Model
     {
         return app(OrdenJerarquicoService::class)->calcular();
     }
+
+    public static function rules($id = null): array
+    {
+        return [
+            'nombres' => ['required', 'string', 'max:255'],
+            'apellidos' => ['required', 'string', 'max:255'],
+            'tipo_documento' => ['nullable', 'in:'.implode(',', array_keys(self::TIPOS_DOCUMENTO))],
+            'numero_documento' => ['nullable', 'string', 'max:255', 'unique:personas,numero_documento,'.$id],
+            'telefono' => ['nullable', 'string', 'max:255'],
+            'correo' => ['nullable', 'email', 'max:255'],
+            'direccion' => ['nullable', 'string', 'max:255'],
+            'genero' => ['nullable', 'in:masculino,femenino'],
+            'fecha_nacimiento' => ['nullable', 'date'],
+            'fecha_primera_visita' => ['nullable', 'date'],
+            'peticion_oracion' => ['nullable', 'string'],
+            'acudiente' => ['nullable', 'string', 'max:255'],
+            'telefono_acudiente' => ['nullable', 'string', 'max:255'],
+            'parentesco' => ['nullable', 'in:padre,madre,abuelo_a,tio_a,hermano_a,tutor_legal,otro'],
+            'estado' => ['required', 'in:nuevo,en_seguimiento,en_red,inactivo'],
+            'red_id' => ['nullable', 'exists:redes,id'],
+            'lider_id' => ['nullable', 'exists:personas,id'],
+            'user_id' => ['nullable', 'exists:users,id'],
+        ];
+    }
 }

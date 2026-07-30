@@ -49,4 +49,18 @@ class PuntoConexion extends Model
     {
         return $this->hasMany(SesionPuntoConexion::class)->orderByDesc('fecha');
     }
+
+    public static function rules($id = null): array
+    {
+        return [
+            'nombre' => ['required', 'string', 'max:255'],
+            'red_id' => ['required', 'exists:redes,id'],
+            'lider_id' => ['required', 'exists:personas,id'],
+            'anfitrion_persona_id' => ['nullable', 'exists:personas,id'],
+            'dia_semana' => ['nullable', 'in:lunes,martes,miercoles,jueves,viernes,sabado,domingo'],
+            'hora' => ['nullable'],
+            'direccion' => ['nullable', 'string', 'max:255'],
+            'activo' => ['nullable', 'boolean'],
+        ];
+    }
 }

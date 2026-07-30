@@ -1,0 +1,453 @@
+/**
+ * Responsive Mobile Optimizations
+ * Complemento a los estilos principales para dispositivos móviles
+ */
+
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE OPTIMIZATIONS - GENERAL
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Viewport optimization for small screens */
+@media (max-width: 767px) {
+    html {
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+    }
+
+    body {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    body * {
+        -webkit-user-select: text;
+        -moz-user-select: text;
+        -ms-user-select: text;
+        user-select: text;
+    }
+
+    input, textarea, select, button {
+        font-size: 16px !important;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TABLE RESPONSIVE - MOBILE OPTIMIZATION
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+    .table-responsive {
+        display: block;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table {
+        min-width: 500px;
+    }
+
+    .table th {
+        font-size: 0.8rem;
+        padding: 8px 6px;
+        white-space: nowrap;
+    }
+
+    .table td {
+        font-size: 0.8rem;
+        padding: 8px 6px;
+        word-break: break-word;
+    }
+
+    .table thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   BUTTONS MOBILE OPTIMIZATION
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+    .btn {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+    }
+
+    .btn-group-vertical > .btn,
+    .btn-group > .btn {
+        border-radius: 4px;
+    }
+
+    /* Ensure buttons are easily tappable */
+    button, input[type="button"], input[type="submit"], a.btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .btn-sm {
+        min-height: 40px;
+        min-width: 40px;
+        padding: 0.35rem 0.65rem;
+    }
+
+    /* Button groups responsive */
+    .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SELECT2 MOBILE OPTIMIZATION
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+    .select2-container--default {
+        width: 100% !important;
+    }
+
+    .select2-container--default .select2-selection--single {
+        min-height: 44px;
+        border-radius: 6px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 42px;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        right: 8px;
+        top: 8px;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .select2-dropdown {
+        max-height: 200px !important;
+    }
+
+    .select2-results__option {
+        padding: 12px 10px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MODAL MOBILE OPTIMIZATION
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+    .modal {
+        padding: 0 !important;
+    }
+
+    .modal-dialog {
+        margin: 0;
+        width: 100%;
+        max-width: 100%;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-content {
+        border-radius: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-header {
+        flex-shrink: 0;
+        border-bottom: 1px solid #dee2e6;
+        padding: 12px;
+    }
+
+    .modal-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px;
+    }
+
+    .modal-footer {
+        flex-shrink: 0;
+        border-top: 1px solid #dee2e6;
+        padding: 12px;
+    }
+
+    .modal-header .btn-close {
+        padding: 0;
+        width: 32px;
+        height: 32px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DROPDOWN MOBILE OPTIMIZATION
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+    .dropdown-menu {
+        min-width: 180px;
+        max-width: calc(100vw - 20px);
+        position: fixed !important;
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+    }
+
+    .dropdown-item {
+        padding: 12px 15px;
+        font-size: 0.95rem;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FORM MOBILE OPTIMIZATION
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        font-size: 0.85rem;
+        margin-bottom: 0.4rem;
+        font-weight: 600;
+    }
+
+    .form-control, .form-select {
+        font-size: 16px;
+        padding: 0.65rem 0.75rem;
+        min-height: 44px;
+        border-radius: 6px;
+    }
+
+    .form-control:focus, .form-select:focus {
+        outline: none;
+        border-color: #0ea5e9;
+        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
+
+    .input-group-text {
+        padding: 0.65rem 0.75rem;
+        min-height: 44px;
+        background-color: #f8fafc;
+        border-color: #e2e8f0;
+    }
+
+    /* Textarea optimization */
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    /* Checkbox & Radio optimization */
+    .form-check {
+        padding-left: 1.75rem;
+    }
+
+    .form-check-input {
+        width: 20px;
+        height: 20px;
+        margin-top: 0.3rem;
+        cursor: pointer;
+    }
+
+    .form-check-label {
+        cursor: pointer;
+        padding: 0.35rem 0;
+        user-select: none;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   CARD MOBILE OPTIMIZATION
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+    .card {
+        margin-bottom: 15px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(1, 41, 112, 0.06);
+    }
+
+    .card-header {
+        padding: 12px 15px;
+        border-radius: 8px 8px 0 0;
+        font-weight: 600;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .card-footer {
+        padding: 12px 15px;
+        border-radius: 0 0 8px 8px;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ALERT MOBILE OPTIMIZATION
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+    .alert {
+        padding: 12px 15px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        margin-bottom: 15px;
+    }
+
+    .alert-heading {
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+    }
+
+    .btn-close {
+        padding: 0.35rem;
+        width: 32px;
+        height: 32px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   BREADCRUMB MOBILE OPTIMIZATION
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+    .breadcrumb {
+        font-size: 0.75rem;
+        padding: 0.5rem 0;
+        margin-bottom: 0.75rem;
+    }
+
+    .breadcrumb-item {
+        padding: 0;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        padding: 0 0.4rem;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   NAVBAR & HEADER MOBILE OPTIMIZATION
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+    .navbar {
+        padding: 0.5rem 0;
+    }
+
+    .nav-link {
+        padding: 0.5rem 0.75rem;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   BADGE MOBILE OPTIMIZATION
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+    .badge {
+        font-size: 0.65rem;
+        padding: 0.35em 0.5em;
+        border-radius: 4px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   UTILITY SPACING MOBILE OPTIMIZATION
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+    .mb-3, .my-3 { margin-bottom: 0.75rem !important; }
+    .mb-4, .my-4 { margin-bottom: 1rem !important; }
+    .mt-3, .my-3 { margin-top: 0.75rem !important; }
+    .mt-4, .my-4 { margin-top: 1rem !important; }
+    .p-3 { padding: 0.75rem !important; }
+    .p-4 { padding: 1rem !important; }
+    .px-3 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+    .py-3 { padding-top: 0.75rem !important; padding-bottom: 0.75rem !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   EXTRA SMALL DEVICES (< 480px)
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 479px) {
+    .table {
+        font-size: 0.75rem;
+    }
+
+    .table th, .table td {
+        padding: 6px 4px;
+    }
+
+    .btn {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.65rem;
+    }
+
+    .form-control, .form-select {
+        font-size: 16px;
+        min-height: 40px;
+        padding: 0.5rem 0.65rem;
+    }
+
+    .modal-dialog {
+        margin: 0;
+    }
+
+    .card {
+        border-radius: 6px;
+        box-shadow: 0 1px 2px rgba(1, 41, 112, 0.04);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PRINT OPTIMIZATION
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media print {
+    body {
+        background: white;
+    }
+
+    .no-print, .btn, .navbar, #header, #sidebar, .footer {
+        display: none !important;
+    }
+
+    #main {
+        margin: 0;
+        padding: 0;
+    }
+
+    .table {
+        page-break-inside: auto;
+    }
+
+    .table tr {
+        page-break-inside: avoid;
+    }
+}
