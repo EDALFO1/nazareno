@@ -8,7 +8,7 @@
         <a class="nav-link {{ request()->routeIs('dashboard') ? '' : 'collapsed' }}"
            href="{{ route('dashboard') }}">
             <i class="bi bi-grid-1x2-fill"></i>
-            <span>Dashboard</span>
+            <span>Inicio</span>
         </a>
     </li>
 
@@ -33,7 +33,7 @@
     @endphp
 
     @if($hayPersonasYRedes)
-    <li class="nav-heading">Personas y Redes  para probar</li>
+    <li class="nav-heading">Personas y Redes </li>
 
     <li class="nav-item">
         <a class="nav-link {{ request()->routeIs('personas.*','redes.*','puntos_conexion.*','estructura-red.*','qr-registro.*') ? '' : 'collapsed' }}"
