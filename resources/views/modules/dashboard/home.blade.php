@@ -3,10 +3,10 @@
 @section('contenido')
 
 <div class="pagetitle">
-    <h1 class="mb-0"><i class="bi bi-grid-1x2-fill me-2"></i>Dashboard</h1>
+    <h1 class="mb-0"><i class="bi bi-grid-1x2-fill me-2"></i>Dashboard   ensayo </h1>
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb mb-0 small">
-            <li class="breadcrumb-item active">Inicio</li>
+            <li class="breadcrumb-item active">Inicio  prueba</li>
         </ol>
     </nav>
 </div>
