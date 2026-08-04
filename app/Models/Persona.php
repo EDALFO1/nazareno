@@ -255,7 +255,7 @@ class Persona extends Model
             'peticion_oracion' => ['nullable', 'string'],
             'acudiente' => ['nullable', 'string', 'max:255'],
             'telefono_acudiente' => ['nullable', 'string', 'max:255'],
-            'parentesco' => ['nullable', 'in:padre,madre,abuelo_a,tio_a,hermano_a,tutor_legal,otro'],
+            'parentesco' => ['nullable', 'in:padre,madre,conyuge,abuelo_a,tio_a,hermano_a,tutor_legal,otro'],
             'estado' => ['required', 'in:nuevo,en_seguimiento,en_red,inactivo'],
             'red_id' => ['nullable', 'exists:redes,id'],
             'lider_id' => ['nullable', 'exists:personas,id'],

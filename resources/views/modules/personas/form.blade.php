@@ -96,7 +96,7 @@
             <label class="form-label fw-semibold">Parentesco</label>
             <select name="parentesco" class="form-select @error('parentesco') is-invalid @enderror">
                 <option value="">Selecciona…</option>
-                @foreach(['padre'=>'Padre','madre'=>'Madre','abuelo_a'=>'Abuelo/a','tio_a'=>'Tío/a','hermano_a'=>'Hermano/a','tutor_legal'=>'Tutor legal','otro'=>'Otro'] as $valor => $etiqueta)
+                @foreach(['padre'=>'Padre','madre'=>'Madre','conyuge'=>'Cónyuge','abuelo_a'=>'Abuelo/a','tio_a'=>'Tío/a','hermano_a'=>'Hermano/a','tutor_legal'=>'Tutor legal','otro'=>'Otro'] as $valor => $etiqueta)
                     <option value="{{ $valor }}" @selected(old('parentesco', $persona->parentesco ?? '') === $valor)>{{ $etiqueta }}</option>
                 @endforeach
             </select>
@@ -135,6 +135,10 @@
                     <option value="{{ $lider->id }}" @selected(old('lider_id', $persona->lider_id ?? '') == $lider->id)>{{ $lider->nombre_completo }}</option>
                 @endforeach
             </select>
+            <small class="text-muted">
+                <i class="bi bi-star-fill text-warning"></i>
+                Si queda "Sin líder…" y la persona tiene Red asignada, se marca como líder principal. Para quitarle esa marca, elige aquí a qué líder pasa a reportarle.
+            </small>
             @error('lider_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
         </div>
         @if($users->isNotEmpty())

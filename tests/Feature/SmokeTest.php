@@ -688,6 +688,61 @@ class SmokeTest extends TestCase
         $this->assertSame(['Resumen', 'Ingresos', 'Egresos'], $nombresHojas);
     }
 
+    public function test_diezmo_de_diezmos_se_recalcula_solo_al_crear_editar_y_eliminar_diezmos(): void
+    {
+        $admin = $this->crearUsuario('super_admin');
+        $this->actingAs($admin);
+
+        $categoriaDiezmo = CategoriaContable::where('tipo', 'ingreso')->where('nombre', 'Diezmo')->firstOrFail();
+        $categoriaDiezmoDeDiezmos = CategoriaContable::firstOrCreate(
+            ['tipo' => 'egreso', 'nombre' => 'Diezmo de Diezmos']
+        );
+
+        // Primer diezmo del mes: 100.000 -> se debe el 15% = 15.000.
+        $this->post('/movimientos_contables', [
+            'tipo' => 'ingreso',
+            'categoria_contable_id' => $categoriaDiezmo->id,
+            'fecha' => now()->startOfMonth()->addDays(2)->format('Y-m-d'),
+            'monto' => 100000,
+            'metodo_pago' => 'efectivo',
+        ])->assertSessionHasNoErrors();
+
+        $cuenta = \App\Models\CuentaPendiente::where('categoria_contable_id', $categoriaDiezmoDeDiezmos->id)->firstOrFail();
+        $this->assertSame(15000.0, (float) $cuenta->fresh()->monto_total);
+
+        // Segundo diezmo: 50.000 más -> total 150.000, 15% = 22.500.
+        $movimiento2 = MovimientoContable::create([
+            'tipo' => 'ingreso',
+            'categoria_contable_id' => $categoriaDiezmo->id,
+            'fecha' => now()->startOfMonth()->addDays(5),
+            'monto' => 50000,
+            'metodo_pago' => 'efectivo',
+        ]);
+        $this->put("/movimientos_contables/{$movimiento2->id}", [
+            'tipo' => 'ingreso',
+            'categoria_contable_id' => $categoriaDiezmo->id,
+            'fecha' => now()->startOfMonth()->addDays(5)->format('Y-m-d'),
+            'monto' => 50000,
+            'metodo_pago' => 'efectivo',
+        ])->assertSessionHasNoErrors();
+
+        $this->assertSame(22500.0, (float) $cuenta->fresh()->monto_total);
+
+        // Se borra el segundo -> vuelve a quedar en 15.000.
+        $this->delete("/movimientos_contables/{$movimiento2->id}")->assertSessionHasNoErrors();
+
+        $this->assertSame(15000.0, (float) $cuenta->fresh()->monto_total);
+
+        // Pagarle a la iglesia principal es un abono normal sobre esa cuenta.
+        $this->post("/cuentas_pendientes/{$cuenta->id}/abonos", [
+            'fecha' => now()->format('Y-m-d'),
+            'monto' => 15000,
+            'metodo_pago' => 'transferencia',
+        ])->assertSessionHasNoErrors();
+
+        $this->assertSame('pagada', $cuenta->fresh()->estado);
+    }
+
     public function test_cuenta_bancaria_calcula_saldo_actual_a_partir_de_sus_movimientos(): void
     {
         [, $carlos] = $this->crearDatosDemo();

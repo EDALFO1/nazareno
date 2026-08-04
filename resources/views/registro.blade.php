@@ -150,7 +150,7 @@
                                 <select id="parentesco" name="parentesco"
                                     class="w-full rounded-lg border border-stone-300 px-3.5 py-2.5 text-stone-900 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
                                     <option value="">Seleccione una opción</option>
-                                    @foreach(['padre'=>'Padre','madre'=>'Madre','abuelo_a'=>'Abuelo/a','tio_a'=>'Tío/a','hermano_a'=>'Hermano/a','tutor_legal'=>'Tutor legal','otro'=>'Otro'] as $valor => $etiqueta)
+                                    @foreach(['padre'=>'Padre','madre'=>'Madre','conyuge'=>'Cónyuge','abuelo_a'=>'Abuelo/a','tio_a'=>'Tío/a','hermano_a'=>'Hermano/a','tutor_legal'=>'Tutor legal','otro'=>'Otro'] as $valor => $etiqueta)
                                         <option value="{{ $valor }}" @selected(old('parentesco') === $valor)>{{ $etiqueta }}</option>
                                     @endforeach
                                 </select>

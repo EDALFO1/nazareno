@@ -23,7 +23,7 @@
     @else
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-transparent border-0 pt-3">
-                <h5 class="mb-0">Pipeline de procesos de formación</h5>
+                <h5 class="mb-0">Manejo de procesos de formación</h5>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">

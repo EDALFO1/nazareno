@@ -19,6 +19,35 @@
 
 <section class="section mt-3">
 
+@if($diezmosDelMes > 0)
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle bg-warning bg-opacity-25 d-flex align-items-center justify-content-center" style="width:44px;height:44px;">
+                <i class="bi bi-percent text-warning fs-5"></i>
+            </div>
+            <div>
+                <div class="fw-semibold">Diezmo de diezmos — {{ ucfirst($mesActual->translatedFormat('F Y')) }}</div>
+                <div class="small text-muted">
+                    Diezmos recibidos: <strong>${{ number_format($diezmosDelMes, 0, ',', '.') }}</strong>
+                    — 15% a girar a la iglesia principal: <strong>${{ number_format($diezmosDelMes * 0.15, 0, ',', '.') }}</strong>
+                </div>
+            </div>
+        </div>
+        @if($cuentaDiezmoDelMes)
+        <a href="{{ route('cuentas_pendientes.show', $cuentaDiezmoDelMes->id) }}" class="btn btn-outline-warning btn-sm">
+            <i class="bi bi-eye me-1"></i>Ver cuenta pendiente
+            @if($cuentaDiezmoDelMes->saldo_pendiente > 0)
+                <span class="badge bg-warning text-dark ms-1">Saldo ${{ number_format($cuentaDiezmoDelMes->saldo_pendiente, 0, ',', '.') }}</span>
+            @else
+                <span class="badge bg-success ms-1">Pagada</span>
+            @endif
+        </a>
+        @endif
+    </div>
+</div>
+@endif
+
 <div class="card border-0 shadow-sm mb-3">
     <div class="card-body">
         <form method="GET" action="{{ route('movimientos_contables.index') }}" class="row g-2 align-items-end">

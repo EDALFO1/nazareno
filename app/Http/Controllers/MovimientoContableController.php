@@ -9,13 +9,14 @@ use App\Models\Persona;
 use App\Models\Proveedor;
 use App\Models\PuntoConexion;
 use App\Models\Red;
+use App\Services\DiezmoDeDiezmosService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class MovimientoContableController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, DiezmoDeDiezmosService $diezmoService)
     {
         $titulo = 'Movimientos contables';
 
@@ -41,7 +42,13 @@ class MovimientoContableController extends Controller
         $categorias = CategoriaContable::where('activo', true)->orderBy('nombre')->get();
         $redes = Red::orderBy('nombre')->get();
 
-        return view('modules.movimientos_contables.index', compact('titulo', 'movimientos', 'categorias', 'redes'));
+        $mesActual = now();
+        $diezmosDelMes = $diezmoService->totalDiezmosDelMes($mesActual);
+        $cuentaDiezmoDelMes = $diezmoService->cuentaDelMes($mesActual);
+
+        return view('modules.movimientos_contables.index', compact(
+            'titulo', 'movimientos', 'categorias', 'redes', 'mesActual', 'diezmosDelMes', 'cuentaDiezmoDelMes'
+        ));
     }
 
     public function create()
@@ -51,7 +58,7 @@ class MovimientoContableController extends Controller
         return view('modules.movimientos_contables.create', array_merge(compact('titulo'), $this->datosFormulario()));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, DiezmoDeDiezmosService $diezmoService)
     {
         $request->validate(MovimientoContable::rules());
 
@@ -62,9 +69,17 @@ class MovimientoContableController extends Controller
             $datos['comprobante'] = $request->file('comprobante')->store('comprobantes', 'local');
         }
 
-        MovimientoContable::create($datos);
+        $movimiento = MovimientoContable::create($datos);
 
-        return redirect()->route('movimientos_contables.create')->with('success', 'Movimiento registrado correctamente');
+        $mensaje = 'Movimiento registrado correctamente';
+
+        if ($diezmoService->esIngresoDeDiezmo($movimiento)) {
+            $obligacion = $diezmoService->sincronizarMes($movimiento->fecha);
+            $mensaje .= '. Diezmo de diezmos (15%) de '.ucfirst($movimiento->fecha->translatedFormat('F Y'))
+                .' actualizado a $'.number_format($obligacion, 0, ',', '.').' en Cuentas pendientes.';
+        }
+
+        return redirect()->route('movimientos_contables.create')->with('success', $mensaje);
     }
 
     public function edit(MovimientoContable $movimientos_contable)
@@ -75,9 +90,11 @@ class MovimientoContableController extends Controller
         return view('modules.movimientos_contables.edit', array_merge(compact('titulo', 'movimiento'), $this->datosFormulario()));
     }
 
-    public function update(Request $request, MovimientoContable $movimientos_contable)
+    public function update(Request $request, MovimientoContable $movimientos_contable, DiezmoDeDiezmosService $diezmoService)
     {
         $request->validate(MovimientoContable::rules($movimientos_contable->id));
+
+        $fechaAnterior = $movimientos_contable->fecha->copy();
 
         $datos = $request->except(['_token', '_method', 'comprobante']);
 
@@ -90,16 +107,25 @@ class MovimientoContableController extends Controller
 
         $movimientos_contable->update($datos);
 
+        // Recalcula siempre el mes anterior y el nuevo (por si cambió la
+        // categoría, el monto o la fecha): así la Cuenta Pendiente del
+        // Diezmo de Diezmos nunca queda desincronizada de la realidad.
+        $diezmoService->sincronizarMes($fechaAnterior);
+        $diezmoService->sincronizarMes($movimientos_contable->fecha);
+
         return redirect()->route('movimientos_contables.index')->with('success', 'Movimiento actualizado correctamente');
     }
 
-    public function destroy(MovimientoContable $movimientos_contable)
+    public function destroy(MovimientoContable $movimientos_contable, DiezmoDeDiezmosService $diezmoService)
     {
         if ($movimientos_contable->comprobante) {
             Storage::disk('local')->delete($movimientos_contable->comprobante);
         }
 
+        $fecha = $movimientos_contable->fecha->copy();
         $movimientos_contable->delete();
+
+        $diezmoService->sincronizarMes($fecha);
 
         return back()->with('success', 'Movimiento eliminado correctamente');
     }

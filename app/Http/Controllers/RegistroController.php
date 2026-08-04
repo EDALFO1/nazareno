@@ -51,7 +51,7 @@ class RegistroController extends Controller
             'peticion_oracion' => ['nullable', 'string', 'max:2000'],
             'acudiente' => ['nullable', 'string', 'max:255'],
             'telefono_acudiente' => ['nullable', 'string', 'max:255'],
-            'parentesco' => ['nullable', 'in:padre,madre,abuelo_a,tio_a,hermano_a,tutor_legal,otro'],
+            'parentesco' => ['nullable', 'in:padre,madre,conyuge,abuelo_a,tio_a,hermano_a,tutor_legal,otro'],
             'autorizoDatos' => ['accepted'],
         ], [
             'autorizoDatos.accepted' => 'Debes autorizar el tratamiento de tus datos personales para continuar.',
