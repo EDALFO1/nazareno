@@ -13,7 +13,7 @@
 
         <div class="relative mx-auto flex min-h-screen max-w-xl flex-col justify-center px-6 py-16">
             <a href="{{ url('/') }}" class="mx-auto mb-8 flex items-center gap-2 text-sm font-semibold text-stone-600 transition hover:text-amber-700">
-                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-amber-600 text-xs font-bold text-white">CD</span>
+                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-amber-600 text-xs font-bold text-white">INP</span>
                 Ciudad de Dios
             </a>
 

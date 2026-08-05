@@ -270,7 +270,7 @@
 
   <div class="st-brand d-none d-md-flex flex-column align-items-center justify-content-center">
     <div class="st-brand-content">
-      <div class="st-brand-logo">CD</div>
+      <div class="st-brand-logo">INP</div>
       <h1>{{ config('app.name') }}</h1>
       <div class="st-divider"></div>
       <p>Sistema de Gestión</p>
@@ -295,7 +295,7 @@
     <div class="st-form-inner">
 
       <div class="st-mobile-logo">
-        <div class="icon">CD</div>
+        <div class="icon">INP</div>
         <span>{{ config('app.name') }}</span>
       </div>
 

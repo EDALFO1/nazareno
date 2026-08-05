@@ -14,7 +14,7 @@
     {{-- LOGO + TOGGLE --}}
     <div class="d-flex align-items-center flex-shrink-0">
         <a href="{{ route('dashboard') }}" class="logo">
-            <div class="logo-icon">CD</div>
+            <div class="logo-icon">INP</div>
             <div>
                 <div class="logo-text">{{ config('app.name') }}</div>
                 <div class="logo-sub">Sistema de Gestión</div>
