@@ -43,7 +43,7 @@ class MovimientoContableController extends Controller
         $redes = Red::orderBy('nombre')->get();
 
         $mesActual = now();
-        $diezmosDelMes = $diezmoService->totalDiezmosDelMes($mesActual);
+        $diezmosDelMes = $diezmoService->totalBaseDelMes($mesActual);
         $cuentaDiezmoDelMes = $diezmoService->cuentaDelMes($mesActual);
 
         return view('modules.movimientos_contables.index', compact(
@@ -73,10 +73,12 @@ class MovimientoContableController extends Controller
 
         $mensaje = 'Movimiento registrado correctamente';
 
-        if ($diezmoService->esIngresoDeDiezmo($movimiento)) {
+        if ($diezmoService->esIngresoBase($movimiento)) {
             $obligacion = $diezmoService->sincronizarMes($movimiento->fecha);
             $mensaje .= '. Diezmo de diezmos (15%) de '.ucfirst($movimiento->fecha->translatedFormat('F Y'))
                 .' actualizado a $'.number_format($obligacion, 0, ',', '.').' en Cuentas pendientes.';
+        } else {
+            $diezmoService->vincularPagoSiCorresponde($movimiento);
         }
 
         return redirect()->route('movimientos_contables.create')->with('success', $mensaje);
@@ -112,6 +114,7 @@ class MovimientoContableController extends Controller
         // Diezmo de Diezmos nunca queda desincronizada de la realidad.
         $diezmoService->sincronizarMes($fechaAnterior);
         $diezmoService->sincronizarMes($movimientos_contable->fecha);
+        $diezmoService->vincularPagoSiCorresponde($movimientos_contable);
 
         return redirect()->route('movimientos_contables.index')->with('success', 'Movimiento actualizado correctamente');
     }

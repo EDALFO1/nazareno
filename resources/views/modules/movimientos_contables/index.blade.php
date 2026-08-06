@@ -29,7 +29,7 @@
             <div>
                 <div class="fw-semibold">Diezmo de diezmos — {{ ucfirst($mesActual->translatedFormat('F Y')) }}</div>
                 <div class="small text-muted">
-                    Diezmos recibidos: <strong>${{ number_format($diezmosDelMes, 0, ',', '.') }}</strong>
+                    Diezmos + Ofrenda general recibidos: <strong>${{ number_format($diezmosDelMes, 0, ',', '.') }}</strong>
                     — 15% a girar a la iglesia principal: <strong>${{ number_format($diezmosDelMes * 0.15, 0, ',', '.') }}</strong>
                 </div>
             </div>

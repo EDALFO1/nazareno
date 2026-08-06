@@ -694,6 +694,7 @@ class SmokeTest extends TestCase
         $this->actingAs($admin);
 
         $categoriaDiezmo = CategoriaContable::where('tipo', 'ingreso')->where('nombre', 'Diezmo')->firstOrFail();
+        $categoriaOfrendaGeneral = CategoriaContable::where('tipo', 'ingreso')->where('nombre', 'Ofrenda general')->firstOrFail();
         $categoriaDiezmoDeDiezmos = CategoriaContable::firstOrCreate(
             ['tipo' => 'egreso', 'nombre' => 'Diezmo de Diezmos']
         );
@@ -710,17 +711,17 @@ class SmokeTest extends TestCase
         $cuenta = \App\Models\CuentaPendiente::where('categoria_contable_id', $categoriaDiezmoDeDiezmos->id)->firstOrFail();
         $this->assertSame(15000.0, (float) $cuenta->fresh()->monto_total);
 
-        // Segundo diezmo: 50.000 más -> total 150.000, 15% = 22.500.
+        // Una Ofrenda general también aporta a la base del 15%: +50.000 -> total 150.000, 15% = 22.500.
         $movimiento2 = MovimientoContable::create([
             'tipo' => 'ingreso',
-            'categoria_contable_id' => $categoriaDiezmo->id,
+            'categoria_contable_id' => $categoriaOfrendaGeneral->id,
             'fecha' => now()->startOfMonth()->addDays(5),
             'monto' => 50000,
             'metodo_pago' => 'efectivo',
         ]);
         $this->put("/movimientos_contables/{$movimiento2->id}", [
             'tipo' => 'ingreso',
-            'categoria_contable_id' => $categoriaDiezmo->id,
+            'categoria_contable_id' => $categoriaOfrendaGeneral->id,
             'fecha' => now()->startOfMonth()->addDays(5)->format('Y-m-d'),
             'monto' => 50000,
             'metodo_pago' => 'efectivo',
@@ -728,12 +729,44 @@ class SmokeTest extends TestCase
 
         $this->assertSame(22500.0, (float) $cuenta->fresh()->monto_total);
 
-        // Se borra el segundo -> vuelve a quedar en 15.000.
+        // Se borra la ofrenda -> vuelve a quedar en 15.000.
         $this->delete("/movimientos_contables/{$movimiento2->id}")->assertSessionHasNoErrors();
 
         $this->assertSame(15000.0, (float) $cuenta->fresh()->monto_total);
 
-        // Pagarle a la iglesia principal es un abono normal sobre esa cuenta.
+        // Regresión: pagar registrando directamente un egreso de "Diezmo de
+        // Diezmos" desde Movimientos contables (sin pasar por el formulario
+        // de abonos de la Cuenta Pendiente) debe descontar el saldo igual.
+        $this->post('/movimientos_contables', [
+            'tipo' => 'egreso',
+            'categoria_contable_id' => $categoriaDiezmoDeDiezmos->id,
+            'fecha' => now()->addDays(10)->format('Y-m-d'),
+            'monto' => 15000,
+            'metodo_pago' => 'transferencia',
+        ])->assertSessionHasNoErrors();
+
+        $this->assertSame(0.0, (float) $cuenta->fresh()->saldo_pendiente);
+        $this->assertSame('pagada', $cuenta->fresh()->estado);
+    }
+
+    public function test_pagar_diezmo_de_diezmos_por_abono_sigue_funcionando(): void
+    {
+        $admin = $this->crearUsuario('super_admin');
+        $this->actingAs($admin);
+
+        $categoriaDiezmo = CategoriaContable::where('tipo', 'ingreso')->where('nombre', 'Diezmo')->firstOrFail();
+        CategoriaContable::firstOrCreate(['tipo' => 'egreso', 'nombre' => 'Diezmo de Diezmos']);
+
+        $this->post('/movimientos_contables', [
+            'tipo' => 'ingreso',
+            'categoria_contable_id' => $categoriaDiezmo->id,
+            'fecha' => now()->format('Y-m-d'),
+            'monto' => 100000,
+            'metodo_pago' => 'efectivo',
+        ])->assertSessionHasNoErrors();
+
+        $cuenta = \App\Models\CuentaPendiente::whereHas('categoriaContable', fn ($q) => $q->where('nombre', 'Diezmo de Diezmos'))->firstOrFail();
+
         $this->post("/cuentas_pendientes/{$cuenta->id}/abonos", [
             'fecha' => now()->format('Y-m-d'),
             'monto' => 15000,
